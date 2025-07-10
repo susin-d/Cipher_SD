@@ -1,0 +1,9 @@
+torch
+whisper
+openai-whisper
+audio_separator
+ffmpeg
+flask
+flask_cors
+onnxruntime
+moviepy
