@@ -11,7 +11,7 @@ Now run the webui.bat file and wait for all dependencies to be installed
 
 ## Available models and languages
 
-![Image of webui][(https://raw.githubusercontent.com/susin-d/Whisper_ASR/img/Screenshot 2025-07-12 014641.png)](https://github.com/susin-d/Whisper-ASR/blob/5a815f8d8d34eef335ba72fb8f45b34655324137/img/Screenshot%202025-07-12%20014641.png)
+![Image of webui](https://github.com/susin-d/Whisper-ASR/blob/5a815f8d8d34eef335ba72fb8f45b34655324137/img/Screenshot%202025-07-12%20014641.png)
 
 There are six model sizes offering speed and accuracy tradeoffs.
 Below are the names of the available models and their approximate memory requirements and inference speed relative to the large model.
