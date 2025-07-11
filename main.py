@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
 import traceback
 from moviepy import VideoFileClip
-import shutil # For removing directories
+import shutil
 
 # Set XDG_CACHE_HOME environment variable for Whisper
 os.environ["XDG_CACHE_HOME"] = r".cache/"
@@ -65,8 +65,10 @@ def load_model(model_name):
     return model
 
 # Transcribes audio to text using the loaded Whisper model
-def audio_to_subtitle(model, audio_input_path):
-    result = model.transcribe(str(audio_input_path))
+# Added 'language' parameter
+def audio_to_subtitle(model, audio_input_path, language=None):
+    # Pass the language parameter to the transcribe method
+    result = model.transcribe(str(audio_input_path), language=language)
     return result
 
 # Formats a given number of seconds into SRT timestamp format (HH:MM:SS,ms)
@@ -98,10 +100,12 @@ def subtitle_to_folder(result, file_name):
         raise Exception("No transcription segments found.")
 
 # Main processing logic for transcription
-def main(model, audio_input_path, file_name):
+# Added 'language' parameter
+def main(model, audio_input_path, file_name, language=None):
     vocals_path = audio_input_path
     
-    subtitle_result = audio_to_subtitle(model, vocals_path)
+    # Pass language to audio_to_subtitle
+    subtitle_result = audio_to_subtitle(model, vocals_path, language=language)
     srt_path = subtitle_to_folder(subtitle_result, file_name)
     
     return srt_path
@@ -119,9 +123,10 @@ def process_audio():
 
     audio_file = request.files['audioFile']
     model_name = request.form.get('modelName')
+    language = request.form.get('language') # Retrieve the language from the form data
 
-    if audio_file.filename == '' or not model_name:
-        return jsonify({'error': 'Missing file or model'}), 400
+    if audio_file.filename == '' or not model_name or not language: # Ensure language is also present
+        return jsonify({'error': 'Missing file, model, or language'}), 400
 
     # Corrected: Get only the base filename without any path components or extension
     # This ensures file_name is a clean string suitable for directory and file naming.
@@ -152,8 +157,8 @@ def process_audio():
     model = load_model(model_name)
 
     try:
-        # Call the main processing function with the correct audio path
-        srt_path = main(model, audio_for_transcription_path, file_name)
+        # Call the main processing function with the correct audio path and language
+        srt_path = main(model, audio_for_transcription_path, file_name, language=language)
         
         # Get the relative path for download URL
         relative_srt = os.path.relpath(srt_path, OUTPUT_FOLDER)
@@ -171,7 +176,6 @@ def process_audio():
             print(f"Cleaned up original uploaded file: {save_path}")
             if not any(save_path.parent.iterdir()):
                 shutil.rmtree(save_path.parent)
-
 
         return jsonify({
             'message': 'File processed successfully',
